@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" sizes="192x192" href="logo192.png">
+  <title>Susshico Stream Portal</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- HLS.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+
+  <style>
+    /* CSS Variables for Premium Theme */
+    :root {
+      --bg-color: #0c0b14;
+      --card-bg: rgba(22, 21, 38, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f3fb;
+      --text-muted: #8e8d9f;
+      --primary: #9d4edd;
+      --primary-glow: rgba(157, 78, 221, 0.4);
+      --secondary: #240046;
+      --accent-cyan: #00f2fe;
+      --accent-cyan-glow: rgba(0, 242, 254, 0.4);
+      --accent-orange: #f27121;
+      --accent-orange-glow: rgba(242, 113, 33, 0.4);
+      --status-live: #06d6a0;
+      --status-live-glow: rgba(6, 214, 160, 0.5);
+      --status-warn: #ffd166;
+      --status-warn-glow: rgba(255, 209, 102, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Ambient Background Glows */
+    .glow-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 40vw;
+      height: 40vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(80px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .glow-blob-2 {
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50vw;
+      height: 50vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.1) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(100px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Subtle Grid Overlay */
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Main Container Card */
+    .portal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      width: 90%;
+      max-width: 960px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      margin: 40px 0;
+      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Header */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 20px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 0%, #a2a0b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+    }
+
+    /* Stream Status Badge */
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--status-live);
+      box-shadow: 0 0 10px var(--status-live-glow);
+      transition: all 0.3s ease;
+    }
+
+    .status-live .status-indicator {
+      background-color: var(--status-live);
+      box-shadow: 0 0 12px var(--status-live-glow);
+      animation: pulse 1.8s infinite alternate;
+    }
+
+    .status-backup .status-indicator {
+      background-color: var(--accent-orange);
+      box-shadow: 0 0 12px var(--accent-orange-glow);
+      animation: pulse-orange 1.8s infinite alternate;
+    }
+
+    .status-connecting .status-indicator {
+      background-color: var(--status-warn);
+      box-shadow: 0 0 12px var(--status-warn-glow);
+      animation: pulse-warn 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.1); opacity: 1; }
+    }
+    @keyframes pulse-orange {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.1); opacity: 1; }
+    }
+    @keyframes pulse-warn {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    /* Video Player Container */
+    .player-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+      margin-bottom: 24px;
+    }
+
+    .player-element {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    /* Overlay messages */
+    .player-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(12, 11, 20, 0.85);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .player-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .overlay-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .overlay-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 280px;
+    }
+
+    /* Stream Info Section */
+    .stream-details {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      .stream-details {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-box h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .info-box p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .meta-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+    }
+
+    .meta-value {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Footer & Admin Link */
+    .portal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .admin-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary) 0%, #7b2cbf 100%);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .admin-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--primary-glow);
+      filter: brightness(1.1);
+    }
+
+    .admin-link svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="glow-blob-1"></div>
+  <div class="glow-blob-2"></div>
+
+  <div class="portal-card">
+    <!-- Card Header -->
+    <header class="card-header">
+      <div class="brand-section">
+        <img class="brand-logo" src="index_icon.svg" alt="Susshico Logo">
+        <div>
+          <h1 class="brand-title">Susshico Stream Portal</h1>
+          <div class="brand-subtitle">Automated Restream Hub</div>
+        </div>
+      </div>
+      <div class="status-badge status-live" id="stream-status">
+        <span class="status-indicator"></span>
+        <span id="status-text">LIVE</span>
+      </div>
+    </header>
+
+    <!-- Video Player -->
+    <div class="player-wrapper">
+      <video id="player" class="player-element" controls playsinline autoplay muted></video>
+      
+      <!-- Overlay Loader / Message -->
+      <div id="player-overlay" class="player-overlay">
+        <div class="overlay-spinner"></div>
+        <div id="overlay-title" class="overlay-title">Connecting to Broadcast...</div>
+        <div id="overlay-desc" class="overlay-desc">Attempting to establish connection with primary ingest server.</div>
+      </div>
+    </div>
+
+    <!-- Metadata Details -->
+    <div class="stream-details">
+      <div class="info-box">
+        <h3 id="channel-name">Live Stream Broadcast</h3>
+        <p id="channel-desc">Welcome to the Susshico live streaming feed. This portal is integrated with automated failover logic. If the local restream server experiences any outages or falls offline, the video player will automatically switch to the main backup stream server to guarantee continuous playback.</p>
+      </div>
+      <div class="meta-box">
+        <div class="meta-item">
+          <span class="meta-label">Uptime:</span>
+          <span class="meta-value" id="uptime-val">-:--:--</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Viewers:</span>
+          <span class="meta-value" id="viewers-val">0</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Source Mode:</span>
+          <span class="meta-value" id="source-mode-val" style="color: var(--status-live);">Primary</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Area -->
+    <footer class="portal-footer">
+      <div>Powered by Susshico Stream Engine</div>
+      <a href="./ui/" class="admin-link" id="admin-panel-link">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+        </svg>
+        Admin Panel
+      </a>
+    </footer>
+  </div>
+
+  <script>
+    // Configuration Parameters (Can be overridden via URL parameters)
+    const params = new URLSearchParams(window.location.search);
+    
+    // Fallback detection settings
+    const MAX_RETRIES = 3;
+    const RETRY_INTERVAL = 2000; // ms
+    const STALL_TIMEOUT = 7000; // ms
+
+    // Stream URLs: primary tries to pull local restreamer, fallback defaults to main server
+    const primaryUrl = params.get('stream') || 'memfs/live.m3u8';
+    const fallbackUrl = params.get('fallback') || 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8'; // default demo stream for fallback
+
+    const player = document.getElementById('player');
+    const statusBadge = document.getElementById('stream-status');
+    const statusText = document.getElementById('status-text');
+    const overlay = document.getElementById('player-overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayDesc = document.getElementById('overlay-desc');
+    const sourceModeVal = document.getElementById('source-mode-val');
+    const adminLink = document.getElementById('admin-panel-link');
+
+    let hls = null;
+    let retryCount = 0;
+    let isFallbackActive = false;
+    let stallTimer = null;
+
+    // Handle Admin Link visibility
+    if (params.get('admin') === 'false') {
+      adminLink.style.display = 'none';
+    }
+
+    // Initialize Video Player
+    function initPlayer(url, isFallback = false) {
+      isFallbackActive = isFallback;
+      
+      // Update Telemetry Display
+      if (isFallback) {
+        statusBadge.className = 'status-badge status-backup';
+        statusText.innerText = 'BACKUP ACTIVE';
+        sourceModeVal.innerText = 'Fallback Server';
+        sourceModeVal.style.color = 'var(--accent-orange)';
+        hideOverlay();
+      } else {
+        statusBadge.className = 'status-badge status-connecting';
+        statusText.innerText = 'CONNECTING';
+        sourceModeVal.innerText = 'Primary Server';
+        sourceModeVal.style.color = 'var(--status-live)';
+        showOverlay('Connecting to Broadcast...', 'Attempting to establish connection with primary ingest server.');
+      }
+
+      console.log(`Initializing play source: ${url}`);
+
+      // Destroy old Hls instance if exists
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+
+      // Check if HLS.js is supported
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          manifestLoadingMaxRetry: 1,
+          manifestLoadingRetryDelay: 1000,
+          levelLoadingMaxRetry: 1,
+          fragLoadingMaxRetry: 2,
+          enableWorker: true
+        });
+        
+        hls.loadSource(url);
+        hls.attachMedia(player);
+
+        // HLS.js Events
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          hideOverlay();
+          statusBadge.className = isFallbackActive ? 'status-badge status-backup' : 'status-badge status-live';
+          statusText.innerText = isFallbackActive ? 'BACKUP ACTIVE' : 'LIVE';
+          player.play().catch(e => console.log('Autoplay blocked: ', e));
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          console.warn('HLS.js Error:', data.type, data.details, data.fatal);
+          
+          if (data.fatal) {
+            handlePlaybackFailure();
+          }
+        });
+
+      } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS fallback (Safari/iOS)
+        player.src = url;
+        player.addEventListener('loadedmetadata', () => {
+          hideOverlay();
+          statusBadge.className = isFallbackActive ? 'status-badge status-backup' : 'status-badge status-live';
+          statusText.innerText = isFallbackActive ? 'BACKUP ACTIVE' : 'LIVE';
+          player.play().catch(e => console.log('Autoplay blocked: ', e));
+        });
+
+        player.addEventListener('error', (e) => {
+          console.warn('Native Video Player Error:', player.error);
+          handlePlaybackFailure();
+        });
+      } else {
+        // HLS Not Supported at all
+        showOverlay('Unsupported Browser', 'Your browser does not support HLS streaming. Please use a modern browser.');
+      }
+    }
+
+    // Monitor Playback Stalling/Progress
+    player.addEventListener('waiting', () => {
+      console.log('Player entered waiting state...');
+      if (!isFallbackActive) {
+        startStallTimer();
+      }
+    });
+
+    player.addEventListener('playing', () => {
+      console.log('Player is playing...');
+      clearStallTimer();
+      hideOverlay();
+      if (!isFallbackActive) {
+        statusBadge.className = 'status-badge status-live';
+        statusText.innerText = 'LIVE';
+      }
+    });
+
+    player.addEventListener('stalled', () => {
+      console.log('Player is stalled...');
+      if (!isFallbackActive) {
+        startStallTimer();
+      }
+    });
+
+    function startStallTimer() {
+      clearStallTimer();
+      statusBadge.className = 'status-badge status-connecting';
+      statusText.innerText = 'BUFFERING';
+      
+      stallTimer = setTimeout(() => {
+        console.warn('Playback stalled for too long. Triggering failure handle...');
+        showOverlay('Connection Stalled', 'Stream stream buffering has timed out. Attempting reconnect.');
+        handlePlaybackFailure();
+      }, STALL_TIMEOUT);
+    }
+
+    function clearStallTimer() {
+      if (stallTimer) {
+        clearTimeout(stallTimer);
+        stallTimer = null;
+      }
+    }
+
+    // Handle Failures & Failover Trigger
+    function handlePlaybackFailure() {
+      clearStallTimer();
+      
+      if (isFallbackActive) {
+        // If the backup also fails, we just keep trying to reconnect to it
+        console.log('Fallback stream failed. Retrying fallback stream...');
+        showOverlay('Backup Reconnecting...', 'The backup stream is currently unreachable. Reconnecting.');
+        setTimeout(() => initPlayer(fallbackUrl, true), RETRY_INTERVAL);
+        return;
+      }
+
+      retryCount++;
+      console.log(`Playback failure count: ${retryCount} / ${MAX_RETRIES}`);
+
+      if (retryCount >= MAX_RETRIES) {
+        console.warn('Max retries reached. Failing over to main backup server...');
+        showOverlay('Switching to Backup...', 'Primary stream offline. Activating automatic failover to main server.');
+        setTimeout(() => {
+          initPlayer(fallbackUrl, true);
+        }, 1500);
+      } else {
+        showOverlay(`Reconnecting (${retryCount}/${MAX_RETRIES})...`, 'Re-establishing stream connection.');
+        statusBadge.className = 'status-badge status-connecting';
+        statusText.innerText = `RETRY ${retryCount}`;
+        setTimeout(() => {
+          initPlayer(primaryUrl, false);
+        }, RETRY_INTERVAL);
+      }
+    }
+
+    // UI Helper Functions
+    function showOverlay(title, description) {
+      overlayTitle.innerText = title;
+      overlayDesc.innerText = description;
+      overlay.classList.add('active');
+    }
+
+    function hideOverlay() {
+      overlay.classList.remove('active');
+    }
+
+    // Dynamic stats poll from Restreamer API
+    function pollStats() {
+      // Query local widget endpoint. Datarhei Core exposes widgets for stats.
+      // In custom landing pages, we can fetch 'api/v3/widget/process/all' or similar v3 endpoints.
+      fetch('api/v3/widget/process/all')
+        .then(res => {
+          if (!res.ok) throw new Error('API down');
+          return res.json();
+        })
+        .then(data => {
+          // If we have stats data, find the active process
+          console.log('Telemetry poll:', data);
+          if (Array.isArray(data) && data.length > 0) {
+            const activeProcess = data[0]; // grab first process stats
+            document.getElementById('viewers-val').innerText = activeProcess.current_sessions || '0';
+            
+            // Format uptime
+            if (activeProcess.uptime > 0) {
+              const sec = activeProcess.uptime;
+              const hrs = Math.floor(sec / 3600);
+              const mins = Math.floor((sec % 3600) / 60);
+              const secs = Math.floor(sec % 60);
+              document.getElementById('uptime-val').innerText = 
+                `${hrs}:${mins < 10 ? '0' + mins : mins}:${secs < 10 ? '0' + secs : secs}`;
+            }
+          }
+        })
+        .catch(err => {
+          console.log('Local stats API offline or unsupported in mock environment:', err);
+        });
+    }
+
+    // Start Player & Pollers
+    initPlayer(primaryUrl, false);
+    setInterval(pollStats, 5000);
+
+  </script>
+</body>
+</html>

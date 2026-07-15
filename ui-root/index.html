@@ -213,7 +213,36 @@
       100% { opacity: 1; }
     }
 
-    /* Video Player Container */
+    /* Settings Gear Button */
+    .settings-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: 12px;
+      outline: none;
+    }
+
+    .settings-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: rotate(45deg);
+    }
+
+    .settings-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Video Player Wrapper */
     .player-wrapper {
       position: relative;
       width: 100%;
@@ -236,6 +265,68 @@
       z-index: 1;
     }
 
+    /* Backup failover overlay container */
+    .backup-view-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2; /* Sits on top of HLS video, below loader overlay */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      background-color: #0c0b14;
+      overflow: hidden;
+    }
+
+    .backup-view-container.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .backup-image-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .backup-image-view.active {
+      opacity: 1;
+    }
+
+    .yt-player-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      background: #000;
+    }
+
+    .yt-player-wrapper.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .yt-player-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
     /* Overlay messages */
     .player-overlay {
       position: absolute;
@@ -244,7 +335,7 @@
       width: 100%;
       height: 100%;
       background: rgba(12, 11, 20, 0.85);
-      z-index: 2;
+      z-index: 3; /* Top level overlay */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -285,7 +376,8 @@
       font-size: 14px;
       color: var(--text-muted);
       text-align: center;
-      max-width: 280px;
+      max-width: 320px;
+      padding: 0 16px;
     }
 
     /* Stream Info Section */
@@ -337,6 +429,208 @@
     .meta-value {
       font-weight: 600;
       color: var(--text-main);
+    }
+
+    /* Settings Modal Styles */
+    .settings-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(12, 11, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .settings-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-modal-content {
+      background: rgba(22, 21, 38, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      color: var(--text-main);
+    }
+
+    .settings-modal.active .settings-modal-content {
+      transform: scale(1);
+    }
+
+    .settings-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .settings-modal-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .settings-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+      outline: none;
+    }
+
+    .settings-close-btn:hover {
+      color: var(--text-main);
+    }
+
+    .settings-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .settings-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-field label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .settings-field input[type="text"],
+    .settings-field select {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .settings-field input[type="text"]:focus,
+    .settings-field select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .settings-field input[type="file"] {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .settings-help {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .preview-container {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .preview-image-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preview-container img {
+      width: 60px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .remove-btn {
+      background: rgba(239, 71, 111, 0.1);
+      border: 1px solid rgba(239, 71, 111, 0.2);
+      color: #ef476f;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .remove-btn:hover {
+      background: rgba(239, 71, 111, 0.2);
+    }
+
+    .settings-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
     }
 
     /* Footer & Admin Link */
@@ -394,16 +688,31 @@
           <div class="brand-subtitle">Automated Restream Hub</div>
         </div>
       </div>
-      <div class="status-badge status-live" id="stream-status">
-        <span class="status-indicator"></span>
-        <span id="status-text">LIVE</span>
+      <div style="display: flex; align-items: center;">
+        <div class="status-badge status-live" id="stream-status">
+          <span class="status-indicator"></span>
+          <span id="status-text">LIVE</span>
+        </div>
+        <button id="open-settings-btn" class="settings-btn" title="Stream failover settings">
+          <svg viewBox="0 0 24 24">
+            <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <!-- Video Player -->
+    <!-- Video Player Container -->
     <div class="player-wrapper">
       <video id="player" class="player-element" controls playsinline autoplay muted></video>
       
+      <!-- Backup View Container (custom image + YouTube player overlay) -->
+      <div id="backup-container" class="backup-view-container">
+        <div id="backup-image-view" class="backup-image-view"></div>
+        <div id="yt-player-wrapper" class="yt-player-wrapper">
+          <div id="yt-player"></div>
+        </div>
+      </div>
+
       <!-- Overlay Loader / Message -->
       <div id="player-overlay" class="player-overlay">
         <div class="overlay-spinner"></div>
@@ -446,19 +755,63 @@
     </footer>
   </div>
 
+  <!-- Settings Modal Overlay -->
+  <div id="settings-modal" class="settings-modal">
+    <div class="settings-modal-content">
+      <div class="settings-modal-header">
+        <h2>Stream Failover Settings</h2>
+        <button id="close-settings-btn" class="settings-close-btn" title="Close modal">&times;</button>
+      </div>
+      <div class="settings-modal-body">
+        
+        <!-- Backup Image Upload -->
+        <div class="settings-field">
+          <label for="backup-image-input">Custom Backup Image</label>
+          <input type="file" id="backup-image-input" accept="image/*">
+          <div class="settings-help">This image is displayed full-screen during stream outages.</div>
+          <div id="backup-image-preview-container" class="preview-container">
+            <div class="preview-image-wrapper">
+              <img id="backup-image-preview" src="" alt="Backup Preview">
+              <span class="settings-help">Image uploaded</span>
+            </div>
+            <button id="remove-image-btn" class="remove-btn">Remove Image</button>
+          </div>
+        </div>
+
+        <!-- Backup YouTube URL -->
+        <div class="settings-field">
+          <label for="backup-yt-input">YouTube Video or Music</label>
+          <input type="text" id="backup-yt-input" placeholder="YouTube Video URL or ID (e.g. https://www.youtube.com/watch?v=...)">
+          <div class="settings-help">Specify a YouTube link (e.g., lo-fi stream or custom music video) to play during failover.</div>
+        </div>
+
+        <!-- Failover Mode Select -->
+        <div class="settings-field">
+          <label for="backup-mode-select">Failover Display Mode</label>
+          <select id="backup-mode-select">
+            <option value="image">Show custom image (play YouTube audio in background)</option>
+            <option value="youtube">Show YouTube video directly (video + audio)</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="settings-modal-footer">
+        <button id="cancel-settings-btn" class="btn btn-secondary">Cancel</button>
+        <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Configuration Parameters (Can be overridden via URL parameters)
+    // Configuration & Settings Parameters (Can be overridden via URL parameters)
     const params = new URLSearchParams(window.location.search);
     
-    // Fallback detection settings
-    const MAX_RETRIES = 3;
-    const RETRY_INTERVAL = 2000; // ms
-    const STALL_TIMEOUT = 7000; // ms
+    // Failover detection settings
+    const STALL_TIMEOUT = 5000; // Fast 5-second disconnect/stall detection
 
-    // Stream URLs: primary tries to pull local restreamer, fallback defaults to main server
+    // Stream URLs: primary tries to pull local restreamer, fallback defaults to settings/param
     const primaryUrl = params.get('stream') || 'memfs/live.m3u8';
-    const fallbackUrl = params.get('fallback') || 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8'; // default demo stream for fallback
-
+    
     const player = document.getElementById('player');
     const statusBadge = document.getElementById('stream-status');
     const statusText = document.getElementById('status-text');
@@ -468,10 +821,20 @@
     const sourceModeVal = document.getElementById('source-mode-val');
     const adminLink = document.getElementById('admin-panel-link');
 
+    // Failover State Variables
     let hls = null;
-    let retryCount = 0;
     let isFallbackActive = false;
     let stallTimer = null;
+    let probeInterval = null;
+
+    // Load Local Failover Settings
+    let backupImage = localStorage.getItem('susshico_backup_image') || '';
+    let ytUrl = localStorage.getItem('susshico_yt_url') || '';
+    let failoverMode = localStorage.getItem('susshico_failover_mode') || 'image';
+    let tempBackupImage = undefined;
+
+    // Determine default fallback HLS stream if YouTube is not playing
+    const defaultFallbackHls = params.get('fallback') || 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8';
 
     // Handle Admin Link visibility
     if (params.get('admin') === 'false') {
@@ -481,20 +844,23 @@
     // Initialize Video Player
     function initPlayer(url, isFallback = false) {
       isFallbackActive = isFallback;
+      clearStallTimer();
       
       // Update Telemetry Display
       if (isFallback) {
         statusBadge.className = 'status-badge status-backup';
         statusText.innerText = 'BACKUP ACTIVE';
-        sourceModeVal.innerText = 'Fallback Server';
+        sourceModeVal.innerText = 'Fallback Mode';
         sourceModeVal.style.color = 'var(--accent-orange)';
         hideOverlay();
+        activateFailoverVisuals();
       } else {
         statusBadge.className = 'status-badge status-connecting';
         statusText.innerText = 'CONNECTING';
         sourceModeVal.innerText = 'Primary Server';
         sourceModeVal.style.color = 'var(--status-live)';
-        showOverlay('Connecting to Broadcast...', 'Attempting to establish connection with primary ingest server.');
+        showOverlay('Connecting to Broadcast...', 'Attempting to establish connection with primary stream.');
+        deactivateFailoverVisuals();
       }
 
       console.log(`Initializing play source: ${url}`);
@@ -505,7 +871,7 @@
         hls = null;
       }
 
-      // Check if HLS.js is supported
+      // Check HLS compatibility
       if (Hls.isSupported()) {
         hls = new Hls({
           manifestLoadingMaxRetry: 1,
@@ -518,52 +884,59 @@
         hls.loadSource(url);
         hls.attachMedia(player);
 
-        // HLS.js Events
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           hideOverlay();
-          statusBadge.className = isFallbackActive ? 'status-badge status-backup' : 'status-badge status-live';
-          statusText.innerText = isFallbackActive ? 'BACKUP ACTIVE' : 'LIVE';
-          player.play().catch(e => console.log('Autoplay blocked: ', e));
+          if (!isFallbackActive) {
+            statusBadge.className = 'status-badge status-live';
+            statusText.innerText = 'LIVE';
+            player.play().catch(e => console.log('Autoplay blocked: ', e));
+          }
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           console.warn('HLS.js Error:', data.type, data.details, data.fatal);
-          
-          if (data.fatal) {
-            handlePlaybackFailure();
+          if (data.fatal && !isFallbackActive) {
+            console.warn('Fatal error detected, initiating quick failover.');
+            triggerFailover();
           }
         });
 
       } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native HLS fallback (Safari/iOS)
+        // Native HLS playback (Safari/iOS)
         player.src = url;
-        player.addEventListener('loadedmetadata', () => {
-          hideOverlay();
-          statusBadge.className = isFallbackActive ? 'status-badge status-backup' : 'status-badge status-live';
-          statusText.innerText = isFallbackActive ? 'BACKUP ACTIVE' : 'LIVE';
-          player.play().catch(e => console.log('Autoplay blocked: ', e));
-        });
-
-        player.addEventListener('error', (e) => {
-          console.warn('Native Video Player Error:', player.error);
-          handlePlaybackFailure();
-        });
+        player.addEventListener('loadedmetadata', onPlayerLoaded);
+        player.addEventListener('error', onPlayerError);
       } else {
-        // HLS Not Supported at all
         showOverlay('Unsupported Browser', 'Your browser does not support HLS streaming. Please use a modern browser.');
+      }
+    }
+
+    function onPlayerLoaded() {
+      hideOverlay();
+      if (!isFallbackActive) {
+        statusBadge.className = 'status-badge status-live';
+        statusText.innerText = 'LIVE';
+        player.play().catch(e => console.log('Autoplay blocked: ', e));
+      }
+    }
+
+    function onPlayerError() {
+      if (!isFallbackActive) {
+        console.warn('Native video error. Triggering failover.');
+        triggerFailover();
       }
     }
 
     // Monitor Playback Stalling/Progress
     player.addEventListener('waiting', () => {
-      console.log('Player entered waiting state...');
+      console.log('Player waiting (buffering)...');
       if (!isFallbackActive) {
         startStallTimer();
       }
     });
 
     player.addEventListener('playing', () => {
-      console.log('Player is playing...');
+      console.log('Player playing...');
       clearStallTimer();
       hideOverlay();
       if (!isFallbackActive) {
@@ -573,21 +946,20 @@
     });
 
     player.addEventListener('stalled', () => {
-      console.log('Player is stalled...');
+      console.log('Player stalled...');
       if (!isFallbackActive) {
         startStallTimer();
       }
     });
 
     function startStallTimer() {
-      clearStallTimer();
+      if (stallTimer) return; // Already running
       statusBadge.className = 'status-badge status-connecting';
       statusText.innerText = 'BUFFERING';
       
       stallTimer = setTimeout(() => {
-        console.warn('Playback stalled for too long. Triggering failure handle...');
-        showOverlay('Connection Stalled', 'Stream stream buffering has timed out. Attempting reconnect.');
-        handlePlaybackFailure();
+        console.warn('Stream stalled or disconnected for 5 seconds. Triggering failover...');
+        triggerFailover();
       }, STALL_TIMEOUT);
     }
 
@@ -598,38 +970,167 @@
       }
     }
 
-    // Handle Failures & Failover Trigger
-    function handlePlaybackFailure() {
+    // Trigger Failover Actions
+    function triggerFailover() {
+      if (isFallbackActive) return;
+      isFallbackActive = true;
       clearStallTimer();
+
+      console.warn('Stream disconnected. Activating backup systems.');
+      statusBadge.className = 'status-badge status-backup';
+      statusText.innerText = 'RECONNECTING';
+      sourceModeVal.innerText = 'Reconnecting...';
+      sourceModeVal.style.color = 'var(--status-warn)';
+
+      // Hide main video player visually, display failover visuals
+      activateFailoverVisuals();
       
-      if (isFallbackActive) {
-        // If the backup also fails, we just keep trying to reconnect to it
-        console.log('Fallback stream failed. Retrying fallback stream...');
-        showOverlay('Backup Reconnecting...', 'The backup stream is currently unreachable. Reconnecting.');
-        setTimeout(() => initPlayer(fallbackUrl, true), RETRY_INTERVAL);
-        return;
+      // Start probing the primary stream in the background
+      startBackgroundProbe();
+    }
+
+    // Background probe for stream recovery
+    function startBackgroundProbe() {
+      if (probeInterval) clearInterval(probeInterval);
+      
+      probeInterval = setInterval(() => {
+        console.log("Probing primary stream source: " + primaryUrl);
+        fetch(primaryUrl, { method: 'HEAD', cache: 'no-store' })
+          .then(res => {
+            if (res.ok) {
+              console.log("Primary stream is back online! Recovering HLS player.");
+              clearInterval(probeInterval);
+              probeInterval = null;
+              
+              // Deactivate failover and reload primary stream
+              deactivateFailoverVisuals();
+              initPlayer(primaryUrl, false);
+            }
+          })
+          .catch(err => {
+            console.log("Primary stream is still offline...");
+          });
+      }, 5000);
+    }
+
+    // Show/Hide failover elements
+    function activateFailoverVisuals() {
+      const container = document.getElementById('backup-container');
+      const imgView = document.getElementById('backup-image-view');
+      container.classList.add('active');
+
+      // Display image if set and mode is image
+      if (backupImage && failoverMode === 'image') {
+        imgView.style.backgroundImage = `url(${backupImage})`;
+        imgView.classList.add('active');
+      } else {
+        imgView.classList.remove('active');
       }
 
-      retryCount++;
-      console.log(`Playback failure count: ${retryCount} / ${MAX_RETRIES}`);
-
-      if (retryCount >= MAX_RETRIES) {
-        console.warn('Max retries reached. Failing over to main backup server...');
-        showOverlay('Switching to Backup...', 'Primary stream offline. Activating automatic failover to main server.');
-        setTimeout(() => {
-          initPlayer(fallbackUrl, true);
-        }, 1500);
-      } else {
-        showOverlay(`Reconnecting (${retryCount}/${MAX_RETRIES})...`, 'Re-establishing stream connection.');
-        statusBadge.className = 'status-badge status-connecting';
-        statusText.innerText = `RETRY ${retryCount}`;
-        setTimeout(() => {
-          initPlayer(primaryUrl, false);
-        }, RETRY_INTERVAL);
+      // Handle YouTube failover playback
+      if (ytUrl) {
+        const videoId = getYouTubeId(ytUrl);
+        if (videoId) {
+          playBackupYoutube(videoId, failoverMode === 'image');
+        }
+      } else if (!backupImage) {
+        // Fallback HLS stream if nothing is configured in settings
+        console.log('No backup image/YouTube video configured. Playing default fallback stream.');
+        initPlayer(defaultFallbackHls, true);
       }
     }
 
-    // UI Helper Functions
+    function deactivateFailoverVisuals() {
+      document.getElementById('backup-container').classList.remove('active');
+      stopBackupYoutube();
+      if (probeInterval) {
+        clearInterval(probeInterval);
+        probeInterval = null;
+      }
+    }
+
+    // YouTube IFrame API Integration
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    let ytPlayer = null;
+    let isYtApiReady = false;
+
+    function onYouTubeIframeAPIReady() {
+      isYtApiReady = true;
+      console.log("YouTube API is ready.");
+    }
+
+    function playBackupYoutube(videoId, audioOnly = false) {
+      if (!isYtApiReady) {
+        console.warn("YouTube API not loaded yet. Retrying in 1s...");
+        setTimeout(() => playBackupYoutube(videoId, audioOnly), 1000);
+        return;
+      }
+
+      const wrapper = document.getElementById('yt-player-wrapper');
+      if (audioOnly) {
+        wrapper.classList.remove('active');
+      } else {
+        wrapper.classList.add('active');
+      }
+
+      if (ytPlayer) {
+        console.log("Playing YouTube video ID:", videoId);
+        ytPlayer.loadVideoById(videoId);
+        ytPlayer.playVideo();
+        ytPlayer.unMute();
+        ytPlayer.setVolume(100);
+      } else {
+        console.log("Creating new YouTube player for ID:", videoId);
+        ytPlayer = new YT.Player('yt-player', {
+          height: '100%',
+          width: '100%',
+          videoId: videoId,
+          playerVars: {
+            'autoplay': 1,
+            'controls': audioOnly ? 0 : 1,
+            'disablekb': audioOnly ? 1 : 0,
+            'fs': audioOnly ? 0 : 1,
+            'modestbranding': 1,
+            'rel': 0,
+            'showinfo': 0,
+            'iv_load_policy': 3
+          },
+          events: {
+            'onReady': function(event) {
+              event.target.playVideo();
+              event.target.unMute();
+              event.target.setVolume(100);
+            },
+            'onStateChange': function(event) {
+              if (event.data === YT.PlayerState.ENDED) {
+                event.target.playVideo();
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function stopBackupYoutube() {
+      if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+        console.log("Pausing YouTube backup playback.");
+        ytPlayer.pauseVideo();
+      }
+      document.getElementById('yt-player-wrapper').classList.remove('active');
+    }
+
+    // Helper: Parse YouTube URL to Video ID
+    function getYouTubeId(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : url;
+    }
+
+    // Hide/Show Loader Overlay
     function showOverlay(title, description) {
       overlayTitle.innerText = title;
       overlayDesc.innerText = description;
@@ -642,18 +1143,14 @@
 
     // Dynamic stats poll from Restreamer API
     function pollStats() {
-      // Query local widget endpoint. Datarhei Core exposes widgets for stats.
-      // In custom landing pages, we can fetch 'api/v3/widget/process/all' or similar v3 endpoints.
       fetch('api/v3/widget/process/all')
         .then(res => {
           if (!res.ok) throw new Error('API down');
           return res.json();
         })
         .then(data => {
-          // If we have stats data, find the active process
-          console.log('Telemetry poll:', data);
           if (Array.isArray(data) && data.length > 0) {
-            const activeProcess = data[0]; // grab first process stats
+            const activeProcess = data[0];
             document.getElementById('viewers-val').innerText = activeProcess.current_sessions || '0';
             
             // Format uptime
@@ -668,11 +1165,109 @@
           }
         })
         .catch(err => {
-          console.log('Local stats API offline or unsupported in mock environment:', err);
+          // Silent catch in offline or development environments
         });
     }
 
-    // Start Player & Pollers
+    // Settings Modal Elements
+    const settingsModal = document.getElementById('settings-modal');
+    const openSettingsBtn = document.getElementById('open-settings-btn');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
+    const saveSettingsBtn = document.getElementById('save-settings-btn');
+    const backupImageInput = document.getElementById('backup-image-input');
+    const backupYtInput = document.getElementById('backup-yt-input');
+    const backupModeSelect = document.getElementById('backup-mode-select');
+    const imagePreviewContainer = document.getElementById('backup-image-preview-container');
+    const imagePreviewImg = document.getElementById('backup-image-preview');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+
+    // Open Settings Modal
+    openSettingsBtn.addEventListener('click', () => {
+      tempBackupImage = undefined;
+      backupYtInput.value = ytUrl;
+      backupModeSelect.value = failoverMode;
+      
+      if (backupImage) {
+        imagePreviewImg.src = backupImage;
+        imagePreviewContainer.style.display = 'flex';
+      } else {
+        imagePreviewContainer.style.display = 'none';
+      }
+      
+      settingsModal.classList.add('active');
+    });
+
+    // Close Settings Modal
+    const closeModal = () => {
+      settingsModal.classList.remove('active');
+      backupImageInput.value = ''; // Reset file input
+    };
+
+    closeSettingsBtn.addEventListener('click', closeModal);
+    cancelSettingsBtn.addEventListener('click', closeModal);
+
+    // Close on clicking outside the modal content
+    settingsModal.addEventListener('click', (event) => {
+      if (event.target === settingsModal) {
+        closeModal();
+      }
+    });
+
+    // Handle Image Upload File Select
+    backupImageInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64 = e.target.result;
+          imagePreviewImg.src = base64;
+          imagePreviewContainer.style.display = 'flex';
+          tempBackupImage = base64;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle Remove Image
+    removeImageBtn.addEventListener('click', () => {
+      imagePreviewImg.src = '';
+      imagePreviewContainer.style.display = 'none';
+      backupImageInput.value = '';
+      tempBackupImage = ''; // Staged for deletion on Save
+    });
+
+    // Save Settings Button
+    saveSettingsBtn.addEventListener('click', () => {
+      // Save YouTube URL
+      ytUrl = backupYtInput.value.trim();
+      localStorage.setItem('susshico_yt_url', ytUrl);
+
+      // Save Failover Display Mode
+      failoverMode = backupModeSelect.value;
+      localStorage.setItem('susshico_failover_mode', failoverMode);
+
+      // Save Backup Image if updated
+      if (tempBackupImage !== undefined) {
+        backupImage = tempBackupImage;
+        if (backupImage) {
+          localStorage.setItem('susshico_backup_image', backupImage);
+        } else {
+          localStorage.removeItem('susshico_backup_image');
+        }
+      }
+
+      console.log('Failover settings saved locally.');
+      
+      // Instantly apply visual updates if failover is currently active
+      if (isFallbackActive) {
+        activateFailoverVisuals();
+      }
+      
+      closeModal();
+    });
+
+    // Start Player & Telemetry Pollers
     initPlayer(primaryUrl, false);
     setInterval(pollStats, 5000);
 

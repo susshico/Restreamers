@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8A2387" />
+      <stop offset="50%" stop-color="#E94057" />
+      <stop offset="100%" stop-color="#F27121" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="100%" stop-color="#4FACFE" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e38" />
+      <stop offset="100%" stop-color="#0f0f1b" />
+    </linearGradient>
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer Glow Circle -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="url(#glowGrad)" stroke-width="2" stroke-dasharray="10 5" opacity="0.4" />
+  
+  <!-- Sleek Outer Shield -->
+  <path d="M 100 25 C 135 25, 165 45, 170 80 C 175 120, 145 165, 100 175 C 55 165, 25 120, 30 80 C 35 45, 65 25, 100 25 Z" 
+        fill="url(#bgGrad)" stroke="url(#brandGrad)" stroke-width="3" filter="url(#glow)" />
+
+  <!-- Signal Waves (Broadcasting) -->
+  <path d="M 60 75 A 35 35 0 0 0 60 125" fill="none" stroke="url(#glowGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+  <path d="M 50 65 A 50 50 0 0 0 50 135" fill="none" stroke="url(#glowGrad)" stroke-width="3" stroke-linecap="round" opacity="0.4" />
+  
+  <path d="M 140 75 A 35 35 0 0 1 140 125" fill="none" stroke="url(#glowGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7" />
+  <path d="M 150 65 A 50 50 0 0 1 150 135" fill="none" stroke="url(#glowGrad)" stroke-width="3" stroke-linecap="round" opacity="0.4" />
+
+  <!-- Futuristic Play Button (Broadcaster Core) -->
+  <polygon points="85,70 130,100 85,130" fill="url(#brandGrad)" filter="url(#glow)" />
+  <polygon points="88,75 123,100 88,125" fill="#ffffff" opacity="0.9" />
+  
+  <!-- Status dot inside play button -->
+  <circle cx="100" cy="100" r="8" fill="url(#glowGrad)" />
+
+</svg>

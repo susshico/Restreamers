@@ -4,6 +4,16 @@
 
 This is a customized fork of **datarhei Restreamer**, tailored for the **Susshico** network. It features a premium, dark-glassmorphic landing page viewer portal with built-in client-side HLS failover logic. If the local restreamer instance goes offline or experiences connection dropouts, the video player automatically reroutes playback to the backup main streaming server.
 
+## Advanced Streaming Configurations
+This custom distribution supports:
+- **OBS Multitrack Audio & Video** (for multi-view or multilingual broadcasts).
+- **Twitch VOD Track Integration** (keeps copyrighted music in live streams but removes it from saved VODs).
+- **2K & 4K Streaming** (configured in zero-CPU copy passthrough mode).
+
+Read the detailed guide and use the automation script:
+- 📖 **[Multitrack & 2K/4K Setup Guide](file:///d:/restreamer/multitrack_guide.md)**
+- ⚡ **[Twitch VOD Automation Script](file:///d:/restreamer/setup_twitch_vod.ps1)** (PowerShell script to automatically deploy the Twitch VOD process on your local Restreamer container)
+
 ---
 
 ## Features
